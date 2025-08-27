@@ -14,7 +14,16 @@ function deleteLast() {
 
 function calculateResult() {
   try {
-    display.value = eval(display.value);
+    let expression = display.value;
+
+    // Handle percentages like "1000-70%" => "1000-(70/100*1000)"
+    expression = expression.replace(/(\d+(?:\.\d+)?)([\+\-\*\/])(\d+)%/g,
+      function(match, num1, operator, num2) {
+        return num1 + operator + "(" + num2 + "/100*" + num1 + ")";
+      }
+    );
+
+    display.value = eval(expression);
   } catch (error) {
     display.value = 'Error';
   }
