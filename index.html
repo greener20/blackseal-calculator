@@ -124,55 +124,75 @@
     </div>
   </div>
 
-  <script>
-    let display = document.getElementById("display");
-    let historyList = document.getElementById("historyList");
-    let historyDiv = document.getElementById("history");
-    let history = [];
+ <script>
+  let display = document.getElementById("display");
+  let historyList = document.getElementById("historyList");
+  let historyDiv = document.getElementById("history");
+  let history = [];
 
-    function appendValue(value) {
-      display.value += value;
+  function appendValue(value) {
+    display.value += value;
+  }
+
+  function clearDisplay() {
+    display.value = "";
+  }
+
+  function deleteLast() {
+    display.value = display.value.slice(0, -1);
+  }
+
+  function calculateResult() {
+    try {
+      let expression = display.value;
+
+      // --- Percentage Fix ---
+      // 1) Handle cases like "100+10%" -> "100+(100*10/100)"
+      expression = expression.replace(/(\d+(?:\.\d+)?)([+\-])(\d+)%/g,
+        (match, num1, operator, num2) => {
+          return num1 + operator + "(" + num1 + "*" + num2 + "/100)";
+        }
+      );
+
+      // 2) Handle cases like "50*20%" -> "50*(20/100)"
+      expression = expression.replace(/(\d+(?:\.\d+)?)([*\/])(\d+)%/g,
+        (match, num1, operator, num2) => {
+          return num1 + operator + "(" + num2 + "/100)";
+        }
+      );
+
+      // 3) Handle single percentages like "25%" -> "(25/100)"
+      expression = expression.replace(/(\d+)%/g, "($1/100)");
+
+      let result = eval(expression);
+
+      // Save to history
+      history.push(`${display.value} = ${result}`);
+      updateHistory();
+
+      display.value = result;
+    } catch (error) {
+      display.value = "Error";
     }
+  }
 
-    function clearDisplay() {
-      display.value = "";
-    }
+  function goHome() {
+    window.location.href = "index.html"; // Change to homepage URL if needed
+  }
 
-    function deleteLast() {
-      display.value = display.value.slice(0, -1);
-    }
+  function toggleHistory() {
+    historyDiv.style.display = (historyDiv.style.display === "none") ? "block" : "none";
+  }
 
-    function calculateResult() {
-      try {
-        let expression = display.value;
-        let result = eval(expression);
+  function updateHistory() {
+    historyList.innerHTML = "";
+    history.forEach(item => {
+      let li = document.createElement("li");
+      li.textContent = item;
+      historyList.appendChild(li);
+    });
+  }
+</script>
 
-        // Save to history
-        history.push(`${expression} = ${result}`);
-        updateHistory();
-
-        display.value = result;
-      } catch (error) {
-        display.value = "Error";
-      }
-    }
-
-    function goHome() {
-      window.location.href = "index.html"; // Change to homepage URL if needed
-    }
-
-    function toggleHistory() {
-      historyDiv.style.display = (historyDiv.style.display === "none") ? "block" : "none";
-    }
-
-    function updateHistory() {
-      historyList.innerHTML = "";
-      history.forEach(item => {
-        let li = document.createElement("li");
-        li.textContent = item;
-        historyList.appendChild(li);
-      });
-    }
-  </script>
 </body>
 </html>
