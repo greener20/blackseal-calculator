@@ -33,8 +33,14 @@ function calculateResult() {
     // Case 3: Handle single percentages like "50%"
     expression = expression.replace(/(\d+)%/g, "($1/100)");
 
-    display.value = eval(expression);
+    let result = eval(expression);
+
+    // Save to history
+    history.push(`${display.value} = ${result}`);
+    updateHistory();
+
+    display.value = result;
   } catch (error) {
-    display.value = 'Error';
+    display.value = "Error";
   }
 }
