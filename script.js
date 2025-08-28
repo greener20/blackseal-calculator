@@ -16,10 +16,19 @@ function calculateResult() {
   try {
     let expression = display.value;
 
-    // Handle percentages like "1000-70%" => "1000-(70/100*1000)"
+    // Handle percentages
     expression = expression.replace(/(\d+(?:\.\d+)?)([\+\-\*\/])(\d+)%/g,
       function(match, num1, operator, num2) {
-        return num1 + operator + "(" + num2 + "/100*" + num1 + ")";
+        num1 = parseFloat(num1);
+        num2 = parseFloat(num2);
+
+        if (operator === "+" || operator === "-") {
+          return num1 + operator + (num1 * num2 / 100);
+        } else if (operator === "*") {
+          return num1 * (num2 / 100);
+        } else if (operator === "/") {
+          return num1 / (num2 / 100);
+        }
       }
     );
 
